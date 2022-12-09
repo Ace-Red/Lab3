@@ -10,16 +10,16 @@
     - name: Install some basic packages defined in variable "packages"
       become: true
       apt:
-        pkg: "{{ common['packages'] }}"
-        cache_valid_time: "{{ common['aptcachetime'] }}"
+        pkg: "{{ packages }}"
+        update_cache: yes
+        update_cache_retry_max_delay: "{{ aptcachetime }}"
 
     # Find implementation in https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html#examples
     - name: Enable Nginx service, ensure it is not masked and start it
       become: true
       ansible.builtin.systemd:
-        name: nginx.service
-        state: started
-        enabled: true
+        name: nginx
+        enabled: yes
         masked: no
 
     # Find implementation in https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html#examples
@@ -30,6 +30,7 @@
       become: true
       ansible.builtin.file:
         path: "{{ app_dir }}"
+        state: directory
         owner: "{{ ansible_user_id }}"
         mode: '0755'
 
@@ -93,7 +94,7 @@
       become: true
       ansible.builtin.systemd:
         state: restarted
-        name: nginx.service
+        name: nginx
   
   handlers:
     # Do a daemon reload
